@@ -34,6 +34,9 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ViewHolder
         @BindView(R.id.txtFontName)
         TextView txtFontName;
 
+        @BindView(R.id.txtConfianca)
+        TextView txtConfianca;
+
         @BindView(R.id.txtFont)
         TextView txtFont;
 
@@ -62,6 +65,7 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.txtFontName.setText(mDataset.get(position).getTitulo());
+        holder.txtConfianca.setText("Prob. "+String.valueOf(Math.round(mDataset.get(position).getConfianca()*100))+"%");
 
         SpannableStringBuilder sBuilder = new SpannableStringBuilder();
         sBuilder.append(txtDetect);

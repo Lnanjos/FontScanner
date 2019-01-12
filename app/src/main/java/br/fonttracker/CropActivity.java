@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,12 +34,14 @@ import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import br.fonttracker.ui.camera.GraphicOverlay;
@@ -195,87 +199,48 @@ public class CropActivity extends AppCompatActivity {
         cropButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loading.setVisibility(View.VISIBLE);
                 Log.w("cropButton", "clicked");
                 String texto = "";
-                loading.setVisibility(View.VISIBLE);
                 final Bitmap bmp = cropImageView.getCroppedImage();
-                Frame frame = new Frame.Builder().setBitmap(bmp).build();
-                SparseArray<TextBlock> itens = textRecognizer.detect(frame);
-                final ArrayList<Bitmap> chars = new ArrayList<>();
-                for (int i = 0; i < itens.size(); i++) {
-                    TextBlock item = itens.valueAt(i);
-                    texto = item.getValue();
-                    //txtDetect.setText(item.getValue());
-                    chars.add(Bitmap.createBitmap(bitmap,
-                            item.getBoundingBox().centerX(),
-                            item.getBoundingBox().centerY(),
-                            INPUT_SIZE,
-                            INPUT_SIZE));
-                }
-
-                /*
-                for (Bitmap character:chars){
-                    String caminhoFoto= getExternalFilesDir(null) + "/foto"+character.getGenerationId()+".jpg";
-                    try {
-                        OutputStream outputStream=new FileOutputStream(caminhoFoto);
-                        character.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                        outputStream.close();
-                    } catch (FileNotFoundException fe) {
-                        fe.printStackTrace();
-                    }catch(IOException ie){
-                        ie.printStackTrace();
-                    }
-
-                }*/
-
+                Bitmap teste = null;
+                teste = Bitmap.createScaledBitmap(bmp, INPUT_SIZE, INPUT_SIZE, false);
                 if (!txtDetect.getText().toString().isEmpty()) {
                     startInferenceThread();
 
+                    final Bitmap finalTeste = teste;
                     runInBackgroud(new Runnable() {
                         @Override
                         public void run() {
                             Log.w("cropButton", "running");
-                            if (!chars.isEmpty()) {
-                                for (Bitmap ch : chars) {
-                                    final List<Classificador.Reconhecimento> results = classificador.recognizeImage(ch);
-                                    Intent intent = new Intent(CropActivity.this, ResultActivity.class);
-                                    intent.putExtra("results", (Serializable) results);
-                                    intent.putExtra("txtDetect", txtDetect.getText());
-                                    startActivity(intent);
-                                    for (final Classificador.Reconhecimento recog : results) {
-                                        Log.i("run", "Classificação...:" +
-                                                recog.getTitulo() + " : " + recog.getConfianca());
-                                    /*runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (recog.getConfianca() > 0.1f)
-                                                txtDetect.setText(recog.getTitulo() + " : " + recog.getConfianca());
-                                        }
-                                    });*/
-                                    }
-                                }
-                            } else {
-                                final List<Classificador.Reconhecimento> results = classificador.recognizeImage(bmp);
-                                Intent intent = new Intent(CropActivity.this, ResultActivity.class);
-                                intent.putExtra("results", (Serializable) results);
-                                intent.putExtra("txtDetect", txtDetect.getText());
-                                startActivity(intent);
-                                for (final Classificador.Reconhecimento recog : results) {
-                                    Log.i("run", "Classificação...:" + recog.getTitulo() + " : " + recog.getConfianca());
-                                /*runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (recog.getConfianca() > 0.1f)
-                                            txtDetect.setText(recog.getTitulo() + " : " + recog.getConfianca());
-                                    }
-                                });*/
-                                }
+                            final List<Classificador.Reconhecimento> results = classificador.recognizeImage(finalTeste);
+                            Calendar c = Calendar.getInstance();
+                            String path = getExternalFilesDir(null) + "";
+                            File file = new File(path, "teste" + c.getTimeInMillis() + ".jpg");
+                            try {
+                                OutputStream fOut = new FileOutputStream(file);
+                                finalTeste.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                                fOut.flush();
+                                fOut.close(); // do not forget to close the stream
+                                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-
+                            Intent intent = new Intent(CropActivity.this, ResultActivity.class);
+                            intent.putExtra("results", (Serializable) results);
+                            intent.putExtra("txtDetect", txtDetect.getText());
+                            startActivity(intent);
+                            for (final Classificador.Reconhecimento recog : results) {
+                                Log.i("run", "Classificação...:" + recog.getTitulo() + " : " + recog.getConfianca());
+                            }
                         }
+
                     });
                 } else loading.setVisibility(View.GONE);
             }
+
         });
 
 

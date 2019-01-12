@@ -51,7 +51,7 @@
                 android:id="@+id/button_camera"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:backgroundTint="@color/colorPrimary"
+                app:backgroundTint="@color/colorPrimary"
                 android:scaleType="center"
                 android:src="@drawable/ic_shutter" />
 

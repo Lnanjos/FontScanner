@@ -57,7 +57,7 @@
             android:id="@+id/cropButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:backgroundTint="@color/colorPrimary"
+            app:backgroundTint="@color/colorPrimary"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="fitCenter"

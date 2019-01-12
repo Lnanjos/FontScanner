@@ -21,8 +21,8 @@ public class TensorFlowImageClassificador implements Classificador {
     private static final String TAG = "TensorFlowImageClassificador";
 
     // Only return this many results with at least this confidence.
-    private static final int MAX_RESULTS = 1;
-    private static final float THRESHOLD = 0.1f;
+    private static final int MAX_RESULTS = 4;
+    private static final float THRESHOLD = 0.0f;
 
     // Config values.
     private String inputName;

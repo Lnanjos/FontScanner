@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set good defaults for capturing text.
         boolean autoFocus = true;
-        boolean useFlash = false;
+        boolean useFlash = true;
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                         .setRequestedPreviewSize(1280, 1024)
                         .setRequestedFps(30.0f)
                         .setFlashMode(useFlash ? Camera.Parameters.FLASH_MODE_AUTO : null)
-                        .setFocusMode(autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO : null)
+                        .setFocusMode(autoFocus ? Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE: null)
                         .build();
     }
 
